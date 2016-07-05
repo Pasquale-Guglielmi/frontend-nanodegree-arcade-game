@@ -23,7 +23,8 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime,
+        level;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -64,7 +65,8 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        reset();
+        level = 1;
+        reset(level);
         lastTime = Date.now();
         main();
     }
@@ -79,8 +81,11 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
+        globalUpdate(dt);
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
+        // This function checks if our level variable is increased
+        updateLevel();
     }
 
     /* This is called by the update function and loops through all of the
@@ -95,6 +100,37 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+    }
+
+    // This function check if the payer's coordinates are within the
+    // enemy's space range by calling the method enemy.collision()
+    // If the collision occurs then it also calls player.reset()
+    function checkCollisions() {
+        allEnemies.forEach(function(enemy) {
+            if (enemy.collision()) {
+                player.reset();
+                // the method I call here is defined in app.js
+                player.updateLives();
+            }
+        });
+    }
+    // This function is inspired to the way we update our dt
+    function updateLevel() {
+        var lastLevel = level;
+        // The var currentLevel is equal to 1 plus the integer multiple
+        // of 50: every 50 points the player gets the level is
+        // increased by one
+        var currentLevel = Math.floor(player.scores / 50) + 1;
+        if (currentLevel === 10) {
+            victory();
+        }
+        // If this condition occurs means that the current level is
+        // bigger due to the increased scores and the reset() function
+        // is called passing to it the new level as argument
+        if (currentLevel !== lastLevel) {
+            level = currentLevel;
+            reset(level);
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -135,8 +171,12 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
         renderEntities();
+        // This function is to render the player
+        // scores and lives on the canvas
+        renderScoresLives();
+        // This is used to render the difficulty level on the canvas.
+        renderLevel(level);
     }
 
     /* This function is called by the render function and is called on each game
@@ -158,8 +198,14 @@ var Engine = (function(global) {
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
-    function reset() {
-        // noop
+    function reset(level) {
+        // I'm using this function to call the 'level based' enemiesGenerator
+        // defined in app.js since it has to be out of the game loop and needs
+        // to be executed only once, at the beginning, or only when called
+        // by the updateLevel() function. The reset function also
+        // cleans the allEnemies array befor repushing new elements in it
+        allEnemies = [];
+        enemiesGenerator(level);
     }
 
     /* Go ahead and load all of the images we know we're going to need to
