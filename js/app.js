@@ -8,8 +8,7 @@ var globalUpdate = function(dt) {
     myDt = dt;
 }
 
-// function to generate random integer numbers between min and max
-// References : http://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
+// This function generates random integer numbers between min and max
 
 function randomGenerator(min, max) {
     var number = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -100,7 +99,7 @@ Player.prototype.update = function() {
         this.reset();
         this.scores += 5;
     }
-    if (this.scores === 950) {
+    if (this.scores === 450) {
         victory();
     }
 };
@@ -158,7 +157,6 @@ var player = new Player ();
 
 // Here I define a enemiesGenerator function that will
 // take the difficulty level as argument (integer)
-// references: http://stackoverflow.com/questions/8260156/how-do-i-create-dynamic-variable-names-inside-a-loop
 
 function enemiesGenerator(level) {
     var randomRow;
@@ -198,7 +196,6 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Function to render scores and player lives on the canvas
-// https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript/Track_the_score_and_win
 function renderScoresLives() {
     ctx.font = "16px Impact";
     ctx.fillStyle = 'white';
